@@ -1,0 +1,54 @@
+image: atlassian/pipelines-awscli
+
+pipelines:
+  branches:
+    staging-onprem:
+      - step:
+          caches:
+            - docker
+          services:
+            - docker
+          script:
+            - export IMAGE_NAME=$DOCKER_HUB_USERNAME/$DOCKER_IMAGE_NAME:$BITBUCKET_COMMIT
+            - docker build -t $IMAGE_NAME .
+            - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+            - docker push $IMAGE_NAME
+    staging:
+      - step:
+          deployment: gcp-dev
+          image: google/cloud-sdk:latest
+          caches:
+            - docker
+          services:
+            - docker
+          script:
+            - echo $GCLOUD_API_KEYFILE
+            - export IMAGE_NAME=$GCLOUD_GCR_REPO_URL/$GCLOUD_PROJECT_ID/$DOCKER_IMAGE_NAME:${BITBUCKET_COMMIT}
+            - echo $GCLOUD_API_KEYFILE > ~/.gcloud-api-key.json
+            - gcloud auth activate-service-account --key-file ~/.gcloud-api-key.json
+            - docker login -u _json_key --password-stdin https://$GCLOUD_GCR_REPO_URL < ~/.gcloud-api-key.json
+            - docker build -t $IMAGE_NAME .
+            - docker push $IMAGE_NAME
+            - gcloud container clusters get-credentials $GCLOUD_GKE_CLUSTER --zone=$GCLOUD_ZONE --project $GCLOUD_PROJECT_ID
+            # DEPLOYMENT
+            - kubectl set image deployment $K8S_SERVICE_NAME $K8S_SERVICE_NAME=$IMAGE_NAME --record --namespace=$K8S_NAMESPACE
+    master:
+      - step:
+          deployment: gcp-prod
+          image: google/cloud-sdk:latest
+          caches:
+            - docker
+          services:
+            - docker
+          script:
+            - export IMAGE_NAME=$GCLOUD_GCR_REPO_URL/$GCLOUD_PROJECT_ID/$DOCKER_IMAGE_NAME:${BITBUCKET_COMMIT}
+            - echo $GCLOUD_API_KEYFILE > ~/.gcloud-api-key.json
+            - gcloud auth activate-service-account --key-file ~/.gcloud-api-key.json
+            - docker login -u _json_key --password-stdin https://$GCLOUD_GCR_REPO_URL < ~/.gcloud-api-key.json
+            - docker build -t $IMAGE_NAME .
+            - docker push $IMAGE_NAME
+            - gcloud container clusters get-credentials $GCLOUD_GKE_CLUSTER --zone=$GCLOUD_ZONE --project $GCLOUD_PROJECT_ID
+            # DEPLOYMENT
+            - kubectl set image deployment $K8S_SERVICE_NAME $K8S_SERVICE_NAME=$IMAGE_NAME --record --namespace=$K8S_NAMESPACE
+
+

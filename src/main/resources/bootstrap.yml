@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: default
+  cloud:
+    config:
+      enabled: false
+    bus:
+      enabled: false
+      refresh:
+        enabled: false
+      env:
+        enabled: false

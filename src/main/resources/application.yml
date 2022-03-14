@@ -1,0 +1,106 @@
+server:
+  port: ${PORT:8080}
+  tomcat:
+    accesslog:
+      enabled: false
+    basedir: logs
+
+logging:
+  file:
+    name: logs/${spring.application.name}.log
+    max-size: 250MB
+    max-history: 30
+  level:
+    root: info
+    com.sgedts.base: debug
+  pattern:
+    level: "[%X{username}-%X{loggerId}]%5p"
+
+hibernate:
+  schema_update:
+    unique_constraint_strategy: RECREATE_QUIETLY
+spring:
+  application:
+    name: base
+  task:
+    scheduling:
+      pool:
+        size: 10
+  profiles:
+    active: default
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+  datasource:
+    url: jdbc:mysql://localhost:3306/base?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=Asia/Jakarta
+    username: root
+    password: password
+    hikari:
+      maximum-pool-size: 5
+      max-lifetime: 60000
+    tomcat:
+      test-while-idle: true
+      test-on-borrow: true
+      validation-query: SELECT 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
+        format_sql: true
+        schema_update:
+          unique_constraint_strategy: RECREATE_QUIETLY
+      org:
+        hibernate:
+          envers:
+            audit_table_suffix: _audit
+            revision_field_name: revision
+            revision_type_field_name: revision_type
+    show-sql: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${keycloak.host}/auth/realms/projectrealm/protocol/openid-connect/certs
+  kafka:
+    bootstrap-servers: 172.18.182.132:9091,172.18.182.132:9092,172.18.182.132:9093
+    consumer:
+      group-id: ${spring.application.name}
+      auto-offset-reset: earliest
+
+host:
+  ip: localhost
+  port: 8080
+  path: "base"
+
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*"
+  exposed-headers: "Authorization,Link,X-Total-Count"
+  allow-credentials: true
+  max-age: 1800
+
+swagger:
+  host: ${host.ip}:${host.port}
+  path: /${host.path}
+
+services:
+  my-config:
+    single-signon: 0
+    log-request: 1
+    log-response: 1
+    log-kafka: 1
+  user:
+    url: http://localhost:8080
+    check-session: ${services.user.url}/api/internal/session/is-valid
+  google:
+    cloud:
+      storage:
+        key-file-path: config/google-key/xlp-recon-dev.json
+        private:
+          bucket-name: recon-bucket-dev
+keycloak:
+  host: http://172.18.185.110:30888
