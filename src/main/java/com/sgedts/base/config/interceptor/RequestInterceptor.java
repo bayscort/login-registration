@@ -1,7 +1,6 @@
 package com.sgedts.base.config.interceptor;
 
 import com.sgedts.base.constant.LoggerConstant;
-import com.sgedts.base.util.SecurityUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +19,6 @@ public class RequestInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         try {
-            String username = SecurityUtil.getUsername()
-                    .orElse("_");
-            MDC.put(LoggerConstant.MDC_USERNAME, username);
-
             String loggerId = request.getHeader(LoggerConstant.HEADER_LOGGER_ID);
             if (StringUtils.isNotBlank(loggerId)) {
                 MDC.put(LoggerConstant.MDC_LOGGER_ID, loggerId);

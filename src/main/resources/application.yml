@@ -14,7 +14,7 @@ logging:
     root: info
     com.sgedts.base: debug
   pattern:
-    level: "[%X{username}-%X{loggerId}]%5p"
+    level: "[%X{loggerId}]%5p"
 
 hibernate:
   schema_update:
@@ -59,16 +59,6 @@ spring:
             revision_field_name: revision
             revision_type_field_name: revision_type
     show-sql: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${keycloak.host}/auth/realms/projectrealm/protocol/openid-connect/certs
-  kafka:
-    bootstrap-servers: 172.18.182.132:9091,172.18.182.132:9092,172.18.182.132:9093
-    consumer:
-      group-id: ${spring.application.name}
-      auto-offset-reset: earliest
 
 host:
   ip: localhost
@@ -83,24 +73,7 @@ cors:
   allow-credentials: true
   max-age: 1800
 
-swagger:
-  host: ${host.ip}:${host.port}
-  path: /${host.path}
-
 services:
   my-config:
-    single-signon: 0
     log-request: 1
     log-response: 1
-    log-kafka: 1
-  user:
-    url: http://localhost:8080
-    check-session: ${services.user.url}/api/internal/session/is-valid
-  google:
-    cloud:
-      storage:
-        key-file-path: config/google-key/xlp-recon-dev.json
-        private:
-          bucket-name: recon-bucket-dev
-keycloak:
-  host: http://172.18.185.110:30888

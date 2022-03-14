@@ -1,7 +1,6 @@
 package com.sgedts.base.exception;
 
 import com.sgedts.base.bean.GeneralWrapper;
-import com.sgedts.base.constant.enums.MessageResourceEnum;
 import com.sgedts.base.service.MessageSourceService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -10,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -42,37 +39,6 @@ public class MessageExceptionHandler extends ResponseEntityExceptionHandler {
         handleErrorMessage(ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new GeneralWrapper().fail(ex, "Unexpected Error"));
-    }
-
-    /**
-     * Handle unauthorized error message.
-     *
-     * @param ex exception to be handled
-     * @return response entity with error message
-     */
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<?> unauthorized(AuthenticationException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new GeneralWrapper().fail(ex, HttpStatus.UNAUTHORIZED.getReasonPhrase()));
-    }
-
-    @ExceptionHandler(SessionNotValidException.class)
-    public ResponseEntity<?> sessionNotValid(SessionNotValidException ex) {
-        MessageResourceEnum sessionNotValid = MessageResourceEnum.SESSION_INVALID;
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new GeneralWrapper().fail(sessionNotValid.getCode(), messageSourceService.getMessage(sessionNotValid.getProperty())));
-    }
-
-    /**
-     * Handle forbidden error message.
-     *
-     * @param ex exception to be handled
-     * @return response entity with error message
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?> forbidden(AccessDeniedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new GeneralWrapper().fail(ex, HttpStatus.FORBIDDEN.getReasonPhrase()));
     }
 
     /**

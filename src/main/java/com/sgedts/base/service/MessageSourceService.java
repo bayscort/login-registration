@@ -12,8 +12,7 @@ import java.util.Locale;
 @Service
 public class MessageSourceService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    //    private final Locale defaultLocale = Locale.ENGLISH;
-    private final Locale defaultLocale = new Locale("in", "ID");
+    private final Locale defaultLocale = Locale.ENGLISH;
 
     private final MessageSource messageSource;
 

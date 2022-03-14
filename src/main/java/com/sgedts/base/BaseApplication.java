@@ -11,7 +11,6 @@ import java.security.Security;
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
-@EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 public class BaseApplication {
 
     public static void main(String[] args) {
